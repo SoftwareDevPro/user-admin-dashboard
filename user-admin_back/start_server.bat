@@ -1,1 +1,1 @@
-npm run start
+set NODE_ENV=production && npm run start

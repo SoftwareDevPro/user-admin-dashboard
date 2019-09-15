@@ -5,13 +5,16 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
-
-// https://www.npmjs.com/package/password-hash#verifypassword-hashedpassword
 var passwordHash = require('password-hash');
 
 var app = express();
 var User = require('./schemas/user_schema.js');
 var mongoose = require('mongoose');
+
+console.log("Environment: " + app.get('env'));
+
+let user_db = app.get('env').trim() == 'development' ? 'testdb' : 'userdb';
+console.log('user_db := ' + user_db);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -36,7 +39,7 @@ app.get('/users/:userid', function(req, res) {
 
   console.log("/users/:userid [" + req.params.userid + "]");
   
-  mongoose.connect('mongodb://localhost:27017/userdb',  { useNewUrlParser: true }).then(function() {
+  mongoose.connect('mongodb://localhost:27017/' + user_db,  { useNewUrlParser: true, useUnifiedTopology: true }).then(function() {
     
   User.findOne({userid: req.params.userid}, function (err, result) {
     if (isObjectEmpty(result)) {
@@ -52,7 +55,7 @@ app.get('/users', function(req, res) {
 
   console.log("/users");
 
-  mongoose.connect('mongodb://localhost:27017/userdb',  { useNewUrlParser: true }).then(function() {
+  mongoose.connect('mongodb://localhost:27017/' + user_db,  { useNewUrlParser: true, useUnifiedTopology: true }).then(function() {
 
     User.find({})
         .sort('userid')
@@ -71,7 +74,7 @@ app.get('/users', function(req, res) {
 
 app.post('/users/delete/:userId', function(req, res) {
 
-  mongoose.connect('mongodb://localhost:27017/userdb',  { useNewUrlParser: true }).then(function() {
+  mongoose.connect('mongodb://localhost:27017/' + user_db,  { useNewUrlParser: true, useUnifiedTopology: true }).then(function() {
         
     User.remove({ userid: parseInt(req.params.userId) }, function(err) {
       if (err) {
@@ -87,7 +90,7 @@ app.post('/users/delete/:userId', function(req, res) {
 
 app.post('/users/edit/:userId', function(req, res) {
 
-  mongoose.connect('mongodb://localhost:27017/userdb',  { useNewUrlParser: true }).then(function() {
+  mongoose.connect('mongodb://localhost:27017/' + user_db,  { useNewUrlParser: true, useUnifiedTopology: true }).then(function() {
         
     User.updateOne({ userid: parseInt(req.params.userId) }, {
       name: req.body.name,
@@ -106,6 +109,26 @@ app.post('/users/edit/:userId', function(req, res) {
 
 });
 
+app.post('/users/delete', function(req, res) {
+  
+  mongoose.connect('mongodb://localhost:27017/' + user_db,  { useNewUrlParser: true, useUnifiedTopology: true }).then(function() {
+
+    console.log('Successfully connected');
+
+    User.deleteMany({}, function(err, result) {
+      if (err) {
+        console.log("Error:" + err);
+      } else {
+        console.log("User deletion successfull");
+      }
+    });
+  });
+
+  res.redirect('http://localhost:8080/users')
+
+});
+
+
 app.post('/users/create', function(req, res) {
 
   let user_obj = {
@@ -116,7 +139,7 @@ app.post('/users/create', function(req, res) {
 
   console.log(user_obj);
  
-  mongoose.connect('mongodb://localhost:27017/userdb',  { useNewUrlParser: true }).then(function() {
+  mongoose.connect('mongodb://localhost:27017/' + user_db,  { useNewUrlParser: true, useUnifiedTopology: true }).then(function() {
 
     console.log('Successfully connected');
 
