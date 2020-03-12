@@ -3,11 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "set NODE_ENV=production && nodemon ./bin/www",
-    "start_dev": "set NODE_ENV=development && nodemon ./bin/www",
+    "start": "nodemon ./bin/www",
     "clean": "rmdir /s /q node_modules",
-    "reinstall": "npm run clean && npm install",
-    "test": "mocha 'test/apiTest.js' --exit"
+    "reinstall": "npm run clean && npm install"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -20,8 +18,5 @@
     "mongoose": "^5.6.7",
     "morgan": "~1.9.1",
     "password-hash": "^1.2.2"
-  },
-  "devDependencies": {
-    "supertest": "^4.0.2"
   }
 }
